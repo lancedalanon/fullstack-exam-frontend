@@ -23,7 +23,6 @@ export const login = async ({ username, password }: LoginRequest): Promise<Login
   try {
     // Make a POST request to the /auth/login endpoint with user credentials
     const response = await api.post<LoginResponse>('/api/auth/login', { username, password });
-    console.log(response);
     // Return the API response containing the access token
     return response.data;
   } catch (error) {

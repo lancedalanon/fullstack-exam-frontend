@@ -19,8 +19,6 @@ import ViewItemButton from './ViewItemButton';
 export default function CenteredTable() {
   const { items, loading, error, totalPages, page, setPage } = useFetchItems();
 
-  console.log(items);
-
   // Update the page number when pagination changes
   const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
     setPage(newPage);
