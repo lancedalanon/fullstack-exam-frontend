@@ -13,7 +13,7 @@ import { useDeleteItem } from "../../hooks/items/useDeleteItem";
 import ConfirmDeleteDialog from "../../components/ConfirmDeleteDialog";
 import { useToast } from "../../contexts/toastContext";
 import { useRouter } from "next/navigation";
-import { FormOutputs } from '../../schemas/itemSchemas';
+import { EditableItemFormInputs } from "../../../schemas/item/EditItemFormSchema";
 
 export default function ViewItem() {
   useAuthProtection();
@@ -28,8 +28,13 @@ export default function ViewItem() {
 
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
-  const handleItemSubmit = async (data: FormOutputs) => {
-    const result = await updateItem(id?.toString(), data);
+  const handleItemSubmit = async (data: EditableItemFormInputs) => {
+    const transformedData = { 
+      ...data, 
+      description: data.description ?? "" 
+    };
+  
+    const result = await updateItem(id?.toString(), transformedData);
     if (result) {
       showToast("Item updated successfully!", "success", 5000);
       navigateTo("/");
@@ -86,7 +91,7 @@ export default function ViewItem() {
             onSubmit={handleItemSubmit}
             onDelete={handleDeleteClick}
             error={error ? { general: error.message } : null}
-            defaultValues={item ? { ...item, price: item.price.toString() } : null}
+            defaultValues={item as EditableItemFormInputs}
           />
         )}
       </Box>

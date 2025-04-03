@@ -1,51 +1,33 @@
-"use client";
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Box, TextField, Button, Typography } from "@mui/material";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ItemDeleteButton from "./ItemDeleteButton";
-
-const formSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters").max(50, "Name must be less than 50 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  price: z
-    .string()
-    .regex(/^\d{1,5}(\.\d{1,2})?$/, "Price can only be from 0 to 99999.99")
-    .refine((val) => parseFloat(val) >= 0, "Price must be greater than or equal to 0")
-    .refine((val) => parseFloat(val) <= 99999.99, "Price must be less than or equal to 99999.99"),
-});
-
-const outputSchema = formSchema.transform((data) => ({
-  ...data,
-  price: parseFloat(data.price),
-}));
-
-type FormInputs = z.infer<typeof formSchema>;
-type FormOutputs = z.infer<typeof outputSchema>;
+import { editItemFormSchema, EditableItemFormInputs } from "../../schemas/item/EditItemFormSchema";
 
 interface ItemFormProps {
-  onSubmit: (data: FormOutputs) => void;
+  onSubmit: (data: EditableItemFormInputs) => void;
   onDelete: () => void;
   error?: { [key: string]: string } | null;
-  defaultValues: FormInputs | null;
+  defaultValues: EditableItemFormInputs | null;
+  loading?: boolean;
 }
 
-const EditableItemForm: React.FC<ItemFormProps> = ({ onSubmit, onDelete, error, defaultValues }) => {
+const EditableItemForm: React.FC<ItemFormProps> = ({ onSubmit, onDelete, error, defaultValues, loading = false }) => {
   const [isEditable, setIsEditable] = useState(false);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormInputs>({
-    resolver: zodResolver(formSchema),
-    defaultValues: defaultValues ?? { name: "", description: "", price: "" },
+  } = useForm<EditableItemFormInputs>({
+    resolver: zodResolver(editItemFormSchema),
+    defaultValues: defaultValues ?? { name: "", description: "", price: 0 },
   });
 
-  const handleFormSubmit = (data: FormInputs) => {
-    const transformedData = outputSchema.parse(data);
-    onSubmit(transformedData);
+  const handleFormSubmit = (data: EditableItemFormInputs) => {
+    // Validation is handled by zod, so we simply pass the data
+    onSubmit(data);
   };
 
   return (
@@ -75,9 +57,7 @@ const EditableItemForm: React.FC<ItemFormProps> = ({ onSubmit, onDelete, error, 
           {isEditable ? "Edit Item" : "View Item"}
         </Typography>
 
-        {isEditable && (
-          <ItemDeleteButton onDelete={onDelete} />
-        )}
+        {isEditable && <ItemDeleteButton onDelete={onDelete} />}
       </Box>
 
       <Controller
@@ -91,7 +71,7 @@ const EditableItemForm: React.FC<ItemFormProps> = ({ onSubmit, onDelete, error, 
             fullWidth
             error={!!errors.name || !!error?.name}
             helperText={errors.name?.message || error?.name}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, borderRadius: '8px' }}
             InputProps={{ readOnly: !isEditable }}
           />
         )}
@@ -108,7 +88,7 @@ const EditableItemForm: React.FC<ItemFormProps> = ({ onSubmit, onDelete, error, 
             fullWidth
             error={!!errors.description || !!error?.description}
             helperText={errors.description?.message || error?.description}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, borderRadius: '8px' }}
             multiline
             rows={4}
             InputProps={{ readOnly: !isEditable }}
@@ -127,11 +107,14 @@ const EditableItemForm: React.FC<ItemFormProps> = ({ onSubmit, onDelete, error, 
             fullWidth
             error={!!errors.price || !!error?.price}
             helperText={errors.price?.message || error?.price}
-            sx={{ mb: 2 }}
-            InputProps={{
-              readOnly: !isEditable,
-              inputMode: "decimal",
+            sx={{ mb: 2, borderRadius: '8px' }}
+            inputProps={{
+              type: 'number',
+              placeholder: "0.00",
+              step: '0.01',
+              min: '0',
             }}
+            value={field.value || 0}
           />
         )}
       />
@@ -140,6 +123,7 @@ const EditableItemForm: React.FC<ItemFormProps> = ({ onSubmit, onDelete, error, 
         variant="contained"
         color="primary"
         type="button"
+        disabled={loading}
         onClick={() => setIsEditable(!isEditable)}
         sx={{
           mt: 2,
@@ -156,6 +140,7 @@ const EditableItemForm: React.FC<ItemFormProps> = ({ onSubmit, onDelete, error, 
           variant="contained"
           color="success"
           type="submit"
+          disabled={loading}
           sx={{
             mt: 2,
             borderRadius: "20px",
@@ -163,7 +148,8 @@ const EditableItemForm: React.FC<ItemFormProps> = ({ onSubmit, onDelete, error, 
             py: 2,
           }}
         >
-          Save Changes
+          
+          {loading ? "Saving Changes" : "Save Changes"}
         </Button>
       )}
     </Box>

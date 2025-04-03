@@ -19,6 +19,8 @@ import ViewItemButton from './ViewItemButton';
 export default function CenteredTable() {
   const { items, loading, error, totalPages, page, setPage } = useFetchItems();
 
+  console.log(items);
+
   // Update the page number when pagination changes
   const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
     setPage(newPage);
@@ -74,10 +76,18 @@ export default function CenteredTable() {
               items.length > 0 ? (
                 items.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell sx={{ width: '20%', fontSize: '16px', whiteSpace: 'normal', wordBreak: 'break-word' }}>{item.id}</TableCell>
-                    <TableCell sx={{ width: '20%', fontSize: '16px', whiteSpace: 'normal', wordBreak: 'break-word' }}>{item.name}</TableCell>
-                    <TableCell sx={{ width: '20%', fontSize: '16px', whiteSpace: 'normal', wordBreak: 'break-word' }}>{item.description}</TableCell>
-                    <TableCell sx={{ width: '20%', fontSize: '16px', whiteSpace: 'normal', wordBreak: 'break-word' }}>{item.price}</TableCell>
+                    <TableCell sx={{ width: '20%', fontSize: '16px', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                      {item.id}
+                    </TableCell>
+                    <TableCell sx={{ width: '20%', fontSize: '16px', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                      {item.name}
+                    </TableCell>
+                    <TableCell sx={{ width: '20%', fontSize: '16px', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                      {item.description?.trim() === '' ? 'N/A' : item.description ?? 'N/A'}
+                    </TableCell>
+                    <TableCell sx={{ width: '20%', fontSize: '16px', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                      {item.price}
+                    </TableCell>
                     <TableCell sx={{ width: '20%', whiteSpace: 'normal', wordBreak: 'break-word' }}>
                       <ViewItemButton id={item.id} />
                     </TableCell>

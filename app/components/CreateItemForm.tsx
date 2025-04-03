@@ -2,26 +2,26 @@ import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Box, TextField, Button, Typography } from '@mui/material';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { formSchema, outputSchema, FormInputs, FormOutputs } from '../schemas/itemSchemas';
+import { createItemFormSchema, FormInputs } from '../../schemas/item/CreateItemFormSchema';
 
 interface CreateItemFormProps {
-  onSubmit: (data: FormOutputs) => void;
-  error: { [key: string]: string } | null;
+  onSubmit: (data: FormInputs) => void;
+  error?: { [key: string]: string } | null;
+  loading?: boolean;
 }
 
-const CreateItemForm: React.FC<CreateItemFormProps> = ({ onSubmit, error }) => {
+const CreateItemForm: React.FC<CreateItemFormProps> = ({ onSubmit, error, loading = false }) => {
   const { control, handleSubmit, formState: { errors } } = useForm<FormInputs>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createItemFormSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      price: ''
+      name: "",
+      description: "",
+      price: 0,
     }
   });
 
   const handleFormSubmit = (data: FormInputs) => {
-    const transformedData = outputSchema.parse(data);
-    onSubmit(transformedData);
+    onSubmit(data);
   };
 
   return (
@@ -43,9 +43,10 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({ onSubmit, error }) => {
         boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
       }}
     >
-      <Typography variant="h5" mb={2} align="center">Create New Item</Typography>
+      <Typography variant="h5" mb={2} align="center">
+        Create New Item
+      </Typography>
 
-      {/* Name Field */}
       <Controller
         name="name"
         control={control}
@@ -57,15 +58,11 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({ onSubmit, error }) => {
             fullWidth
             error={!!errors.name || !!error?.name}
             helperText={errors.name?.message || error?.name}
-            sx={{
-              mb: 2,
-              borderRadius: '8px',
-            }}
+            sx={{ mb: 2, borderRadius: '8px' }}
           />
         )}
       />
 
-      {/* Description Field */}
       <Controller
         name="description"
         control={control}
@@ -77,57 +74,43 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({ onSubmit, error }) => {
             fullWidth
             error={!!errors.description || !!error?.description}
             helperText={errors.description?.message || error?.description}
-            sx={{
-              mb: 2,
-              borderRadius: '8px',
-            }}
+            sx={{ mb: 2, borderRadius: '8px' }}
             multiline
             rows={4}
           />
         )}
       />
 
-      {/* Price Field */}
       <Controller
         name="price"
         control={control}
-        render={({ field }) => (
+        render={({ field: { name, ref, value, onChange } }) => (
           <TextField
-            {...field}
+            name={name}
+            inputRef={ref}
+            value={value}
+            onChange={onChange}
             label="Price"
             variant="outlined"
             fullWidth
             error={!!errors.price || !!error?.price}
             helperText={errors.price?.message || error?.price}
-            sx={{
-              mb: 2,
-              borderRadius: '8px',
-            }}
+            sx={{ mb: 2, borderRadius: '8px' }}
             inputProps={{
-              inputMode: 'decimal',
-              placeholder: "0.00"
-            }}
-            onChange={(e) => {
-              // Only allow digits and a single decimal point
-              const input = e.target.value;
-              const sanitizedInput = input
-                .replace(/[^\d.]/g, '') // Remove non-digit/non-decimal characters
-                .replace(/(\..*)\./g, '$1'); // Allow only one decimal point
-              
-              // Limit to 2 decimal places
-              const formattedValue = sanitizedInput.replace(/^(\d*\.)(\d{2})\d+$/, '$1$2');
-              
-              field.onChange(formattedValue);
+              type: 'number',
+              placeholder: "0.00",
+              step: '0.01',
+              min: '0'
             }}
           />
         )}
       />
 
-      {/* Submit Button */}
       <Button
         variant="contained"
         color="primary"
         type="submit"
+        disabled={loading}
         sx={{
           mt: 2,
           borderRadius: "20px",
@@ -135,7 +118,7 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({ onSubmit, error }) => {
           py: 2,
         }}
       >
-        Submit
+        {loading ? "Submitting" : "Submit"}
       </Button>
     </Box>
   );
