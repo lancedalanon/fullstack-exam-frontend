@@ -1,95 +1,33 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
+import * as React from 'react';
+import { useAuthProtection } from './hooks/useAuthProtection';
+import CenteredTable from './components/CenteredTable';
+import LogoutButton from './components/LogoutButton';
+import {
+  Box,
+} from '@mui/material';
+import CreateItemButton from "./components/CreateItemButton";
+import { Typography } from '@mui/material';
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  // Protect the page using client-side authentication
+  useAuthProtection();
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  return (
+    <div>
+      {/* Top-right Logout button */}
+      <Box display="flex" justifyContent="flex-end" p={2}>
+        <LogoutButton />
+      </Box>
+      <Box display="flex" flexDirection="column" alignItems="center">
+        {/* Header with title and button */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} sx={{ width: "80%" }}>
+          <Typography variant="h5" fontWeight="bold">Items</Typography>
+          <CreateItemButton />
+        </Box>
+        {/* Centered table with dummy data and pagination */}
+        <CenteredTable />
+      </Box>
     </div>
   );
 }
